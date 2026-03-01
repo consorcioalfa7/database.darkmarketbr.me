@@ -26,6 +26,7 @@
 - [Configuração do Banco de Dados](#-configuração-do-banco-de-dados)
 - [Alimentação da Base de Dados](#-alimentação-da-base-de-dados)
 - [Configuração da IA](#-configuração-da-ia)
+- [Bot Telegram](#-bot-telegram)
 - [PWA - Instalação Mobile](#-pwa---instalação-mobile)
 - [API Reference](#-api-reference)
 - [Estrutura do Projeto](#-estrutura-do-projeto)
@@ -65,6 +66,12 @@ DarkToolsLabs DataBase é um sistema completo para gerenciamento de sites, gatew
 - ✅ **Chat**: Converse naturalmente sobre a base de dados
 - ✅ **Análise**: Extração automática de dados de texto não estruturado
 - ✅ **Suporte Multi-Modelo**: ZAI (padrão) ou OpenRouter (Claude, GPT, Llama, Gemini)
+
+### Bot Telegram
+- ✅ **Gerenciamento via Telegram**: Adicione e consulte dados pelo bot
+- ✅ **Comandos intuitivos**: /addsite, /addbin, /search, /stats
+- ✅ **Importação em massa**: Adicione múltiplos registros de uma vez
+- ✅ **Controle de acesso**: Restrinja o bot a usuários autorizados
 
 ### PWA (Progressive Web App)
 - ✅ Instalável em iOS e Android
@@ -476,6 +483,129 @@ curl https://database.darkmarketbr.me/api/ai
   "provider": "openrouter",
   "model": "anthropic/claude-3.5-sonnet",
   "configured": true
+}
+```
+
+---
+
+## 🤖 Bot Telegram
+
+O bot do Telegram permite gerenciar a base de dados diretamente pelo aplicativo, sem precisar acessar a interface web.
+
+### Criar o Bot
+
+1. Abra o Telegram e procure por **@BotFather**
+2. Envie `/newbot`
+3. Escolha um nome para o bot (ex: `DarkToolsLabs DB Bot`)
+4. Escolha um username (ex: `DarkToolsLabsDBBot`)
+5. **Copie o token** fornecido (formato: `123456789:ABCdefGHI...`)
+
+### Configurar Variáveis de Ambiente
+
+Adicione ao seu `.env` ou nas variáveis da Vercel:
+
+```env
+# Token do bot (obrigatório)
+TELEGRAM_BOT_TOKEN="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+
+# IDs de usuários autorizados (opcional, mas recomendado)
+# Para descobrir seu ID, mande uma mensagem para @userinfobot
+TELEGRAM_ALLOWED_USERS="123456789,987654321"
+```
+
+### Configurar Webhook
+
+Para que o bot receba mensagens, configure o webhook:
+
+```bash
+# Substitua pelo seu domínio
+curl "https://database.darkmarketbr.me/api/telegram?action=setWebhook&url=https://database.darkmarketbr.me/api/telegram"
+
+# Resposta esperada:
+{
+  "ok": true,
+  "result": true,
+  "description": "Webhook was set"
+}
+```
+
+### Comandos Disponíveis
+
+| Comando | Descrição | Exemplo |
+|---------|-----------|---------|
+| `/start` | Inicia o bot e mostra ajuda | `/start` |
+| `/help` | Mostra todos os comandos | `/help` |
+| `/stats` | Estatísticas da base | `/stats` |
+| `/addsite` | Adiciona um site | `/addsite www.exemplo.com - INFORMÁTICA - NUVEM SHOP - PagBank` |
+| `/bulksites` | Adiciona múltiplos sites | `/bulksites` + uma lista |
+| `/sites` | Lista sites (filtrável) | `/sites PagBank` |
+| `/search` | Busca por termo | `/search amazon` |
+| `/addbin` | Adiciona BIN | `/addbin Amazon - 553636, 498408` |
+| `/bulkbins` | Adiciona múltiplos BINs | `/bulkbins` + uma lista |
+| `/bins` | Busca BIN por nome | `/bins amazon` |
+| `/allbins` | Lista todos os BINs | `/allbins` |
+
+### Exemplos de Uso
+
+#### Adicionar Site
+```
+/addsite www.lojaexemplo.com.br - ELETRÔNICOS - NUVEM SHOP - PagarMe
+```
+
+#### Adicionar Múltiplos Sites
+```
+/bulksites
+www.site1.com - INFORMÁTICA - NUVEM SHOP - PagBank
+www.site2.com - CELULARES - SHOPIFY - PagarMe
+www.site3.com - GAMES - NUVEM SHOP - PagBank
+```
+
+#### Adicionar BIN
+```
+/addbin Netflix - 553636, 498408, 552640
+```
+
+#### Buscar Sites
+```
+/sites PagBank
+/search nuvem
+```
+
+#### Ver Estatísticas
+```
+/stats
+```
+
+### Segurança
+
+**⚠️ Importante:** Configure `TELEGRAM_ALLOWED_USERS` para restringir o acesso ao bot.
+
+```env
+# Apenas estes usuários podem usar o bot
+TELEGRAM_ALLOWED_USERS="123456789,987654321"
+```
+
+Para descobrir seu ID do Telegram:
+1. Abra o Telegram
+2. Procure por **@userinfobot**
+3. Envie qualquer mensagem
+4. Ele responderá com seu ID
+
+### Testar o Bot
+
+```bash
+# Verificar se o bot está configurado
+curl "https://database.darkmarketbr.me/api/telegram?action=getMe"
+
+# Resposta esperada:
+{
+  "ok": true,
+  "result": {
+    "id": 123456789,
+    "is_bot": true,
+    "first_name": "DarkToolsLabs DB Bot",
+    "username": "DarkToolsLabsDBBot"
+  }
 }
 ```
 
